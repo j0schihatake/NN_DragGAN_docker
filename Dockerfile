@@ -75,23 +75,28 @@ RUN su - gun-user -c "conda init bash"
 
 # Настройка окружения из yaml:
 RUN cd /home/gun-user/gun && \
-    conda env create -f ./environment.yml
+    conda env create -f ./environment.yml && \
+    SHELL ["conda", "run", "-n", "venv", "/bin/bash", "-c"]
+
+RUN conda activate stylegan3
 
 # Install the dependencies
-RUN python3 -m pip install -r /home/gun-user/gun/requirements.txt
+#RUN python3 -m pip install -r /home/gun-user/gun/requirements.txt
 
 RUN export PYTORCH_ENABLE_MPS_FALLBACK=1
 
 RUN cd /home/gun-user/gun/scripts/ && \
     python3 download_model.py
 
-RUN mkdir /home/gun-user/gun/checkpoints
+#RUN mkdir /home/gun-user/gun/checkpoints
 
 # Preparing for login
 ENV HOME home/gun-user/gun/
 WORKDIR ${HOME}
 
-CMD python3 visualizer_drag_gradio.py
+#CMD python3 visualizer_drag_gradio.py \ --network=https://api.ngc.nvidia.com/v2/models/nvidia/research/stylegan3/versions/1/files/stylegan3-r-afhqv2-512x512.pkl
+                                         # или тут просто путь к pkl
+CMD chmod +x ./scripts/gui.sh ; ./scripts/gui.sh
 
 # Docker:
 # docker build -t draggun .
